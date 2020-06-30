@@ -4,10 +4,17 @@
 #include <ESP8266mDNS.h>
 #include <IRremoteESP8266.h>
 #include <IRsend.h>
+
+#define USE_DISPLAY
+
+#ifdef USE_DISPLAY
 #include <U8g2lib.h>
 #include <U8x8lib.h>
+#endif
 
 #include "RemoteCodes.h"
+
+
 
 #define IR_SEND_PIN 13
 
@@ -21,7 +28,9 @@ MDNSResponder mdns;
 ESP8266WebServer server(80);
 std::string ip_address;
 
+#ifdef USE_DISPLAY
 U8G2_SSD1306_64X48_ER_F_HW_I2C u8g2(U8G2_R0);
+#endif
 
 namespace {
     void addCrossDomainHeaders()
@@ -31,6 +40,7 @@ namespace {
         server.sendHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     }
 
+#ifdef USE_DISPLAY
     void updateDisplay(const std::string &ip, const std::string &method)
     {
         u8g2.clearBuffer();
@@ -38,6 +48,11 @@ namespace {
         u8g2.drawStr(0, 25, method.c_str());
         u8g2.sendBuffer();
     }
+#else
+    void updateDisplay(const std::string&, const std::string&)
+    {
+    }
+#endif
 }
 
 void remoteFunction(const remote_codes::KeyCode &code, const std::string &method)
